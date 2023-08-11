@@ -7,14 +7,25 @@ interface GalleryProps {
 }
 
 export default function Gallery({ items, cols = 3 }: GalleryProps) {
-	return <Masonry 
-		items={items} 
-		render={RenderMasonryCell} 
-		columnCount={cols} 
-		columnGutter={5}
-	/>;
+	return (
+		<Masonry
+			items={items}
+			render={RenderMasonryCell}
+			columnCount={cols}
+			columnGutter={5}
+		/>
+	);
 }
 
-function RenderMasonryCell({ data: { src } }: { data: { src: string } }) {
-	return <DisplayLocalImage key={src} src={src} />;
+interface RenderMasonryCellProps {
+	index: number;
+	data: { src: string };
+}
+
+function RenderMasonryCell({ data: { src } }: RenderMasonryCellProps) {
+	return (
+		<>
+			<DisplayLocalImage key={src} src={src} />
+		</>
+	);
 }
