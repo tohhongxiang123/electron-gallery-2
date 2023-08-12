@@ -9,15 +9,20 @@ import {
 	Text,
 	Stack,
 } from "@mantine/core";
-import Gallery from "../../components/Gallery";
 import { Loader } from "@mantine/core";
 import {
 	IconArrowMoveUp,
 	IconArrowsShuffle,
 	IconFolder,
 } from "@tabler/icons-react";
-import { useWindowScroll } from "@mantine/hooks";
-import useHandleDirectorySelection from "./useHandleDirectorySelection";
+import { useDisclosure, useWindowScroll } from "@mantine/hooks";
+import useHandleDirectorySelection, {
+	FileData,
+} from "./useHandleDirectorySelection";
+import { Masonry, RenderComponentProps } from "masonic";
+import DisplayLocalImage from "../../components/LocalImage";
+import { useCallback, useState } from "react";
+import ImageModal from "../../components/ImageModal";
 
 export default function HomePage() {
 	const {
@@ -28,8 +33,36 @@ export default function HomePage() {
 		handleShuffle,
 	} = useHandleDirectorySelection();
 
-	const [, setScroll] = useWindowScroll();
+	const [currentIndex, setCurrentIndex] = useState(0);
+	const [opened, { open, close }] = useDisclosure(false);
+	const handleClickImage = useCallback(
+		(index: number) => () => {
+			setCurrentIndex(index);
+			open();
+		},
+		[open]
+	);
 
+	const handleGoPrevious = () => {
+		setCurrentIndex((prevIndex) => Math.max(0, prevIndex - 1));
+	};
+
+	const handleGoNext = () => {
+		setCurrentIndex((prevIndex) =>
+			Math.min(filesData.length - 1, prevIndex + 1)
+		);
+	};
+
+	const RenderMasonryCell = useCallback(
+		({ data, index }: RenderComponentProps<FileData>) => (
+			<div onClick={handleClickImage(index)} style={{ cursor: 'pointer' }}>
+				<DisplayLocalImage src={data.path} key={data.path} />
+			</div>
+		),
+		[handleClickImage]
+	);
+
+	const [, setScroll] = useWindowScroll();
 	return (
 		<>
 			{currentDirectory.length === 0 ? (
@@ -62,10 +95,23 @@ export default function HomePage() {
 					<Loader />
 				</Center>
 			)}
-			{filesData.length > 0 && (
-				<Gallery
-					items={filesData.map((file) => ({ src: file.path }))}
-					cols={3}
+			{opened && (
+				<ImageModal
+					opened={opened}
+					close={close}
+					onNextClicked={handleGoNext}
+					onPreviousClicked={handleGoPrevious}
+					title={`${filesData[currentIndex].title} - (${currentIndex + 1}/${filesData.length})`}
+				>
+					<DisplayLocalImage src={filesData[currentIndex].path} />
+				</ImageModal>
+			)}
+			{currentDirectory !== "" && filesData.length > 0 && (
+				<Masonry
+					items={filesData}
+					render={RenderMasonryCell}
+					columnGutter={5}
+					columnCount={3}
 				/>
 			)}
 			{currentDirectory !== "" && (

@@ -52,6 +52,11 @@ function DisplayLocalImage({ src, ...props }: DisplayLocalImageProps) {
 		};
 	}, [loadUpImage]);
 
+	// if component rerenders, it means src changed, and we reload the image
+	useEffect(() => {
+		loadUpImage()
+	}, [loadUpImage])
+
 	if (!inView) {
 		return (
 			<div ref={placeholderRef}>
@@ -72,15 +77,15 @@ function DisplayLocalImage({ src, ...props }: DisplayLocalImageProps) {
 		return <div>No image found</div>;
 	}
 
-	return <img alt={src} loading={"lazy"} {...props} src={image} style={{ borderRadius: '5px', width: '100%' }} />;
+	return <img alt={src} loading={"lazy"} {...props} src={image} style={{ borderRadius: '5px', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />;
 }
 
 function LoadingImage() {
 	const theme = useMantineTheme();
 
 	return (
-		<div style={{ padding: theme.spacing.xs }}>
-			<Skeleton height={500} mx={15} radius="sm" />
+		<div style={{ padding: theme.spacing.xs, width: '100%' }}>
+			<Skeleton height={500} radius="sm" />
 		</div>
 	);
 }

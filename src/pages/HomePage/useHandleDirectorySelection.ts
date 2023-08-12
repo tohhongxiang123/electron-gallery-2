@@ -5,9 +5,10 @@ import shuffle from "../../utils/shuffle";
 
 const ipcRenderer = electron.ipcRenderer;
 
-type FileData = {
+export type FileData = {
 	path: string;
 	lastModified: number;
+	title: string;
 };
 
 export default function useHandleDirectorySelection() {
@@ -39,6 +40,7 @@ export default function useHandleDirectorySelection() {
 						lastModified: fs
 							.statSync(`${directory}/${file}`)
 							.mtime.getTime(),
+						title: file
 					};
 				});
 
