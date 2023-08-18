@@ -1,3 +1,5 @@
+executable
+
 # Logs
 logs
 *.log

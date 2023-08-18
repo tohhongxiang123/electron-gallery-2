@@ -33,8 +33,6 @@ function createWindow() {
 		},
 	});
 
-	if (win === null) return
-
 	electronRemoteMain.enable(win.webContents);
 
 	// Test active push message to Renderer-process.
@@ -52,20 +50,35 @@ function createWindow() {
 		win.loadFile(path.join(process.env.DIST, "index.html"));
 	}
 
-	ipcMain.on('select-directory', async (event, arg) => {
+	ipcMain.on("select-directory", async () => {
+		if (!win) return
+
 		const result = await dialog.showOpenDialog(win, {
-			properties: ['openDirectory']
-		})
-	
-		win.webContents.send('select-directory', result.filePaths[0])
-	})
+			properties: ["openDirectory"],
+		});
+
+		if (result.canceled) {
+			return win.webContents.send("select-directory", []);
+		}
+
+		win.webContents.send("select-directory", result.filePaths[0]);
+	});
 }
 
-app.on("window-all-closed", () => {
-	win = null;
+app.on("window-all-closed", function () {
+	// On OS X it is common for applications and their menu bar
+	// to stay active until the user quits explicitly with Cmd + Q
+	if (process.platform !== "darwin") {
+		app.quit();
+	}
+});
+
+app.on("activate", function () {
+	// On OS X it's common to re-create a window in the app when the
+	// dock icon is clicked and there are no other windows open.
+	if (win === null) {
+		createWindow();
+	}
 });
 
 app.whenReady().then(createWindow);
-
-
-
