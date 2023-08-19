@@ -77,7 +77,7 @@ function DisplayLocalImage({ src, ...props }: DisplayLocalImageProps) {
 		return <div>No image found</div>;
 	}
 
-	return <img alt={src} loading={"lazy"} {...props} src={image} style={{ borderRadius: '5px', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />;
+	return <img alt={src} loading={"lazy"} {...props} src={image} style={{ borderRadius: '5px', width: '100%', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />;
 }
 
 function LoadingImage() {

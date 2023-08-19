@@ -13,15 +13,20 @@ import { Loader } from "@mantine/core";
 import {
 	IconArrowMoveUp,
 	IconArrowsShuffle,
+	IconArrowsSort,
+	IconCalendar,
 	IconFolder,
+	IconSortAZ,
+	IconSortZA,
 } from "@tabler/icons-react";
 import { useDisclosure, useWindowScroll } from "@mantine/hooks";
 import useHandleDirectorySelection, {
+	AVAILABLE_SORTS,
 	FileData,
 } from "./useHandleDirectorySelection";
 import { Masonry, RenderComponentProps } from "masonic";
 import DisplayLocalImage from "../../components/LocalImage";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ImageModal from "../../components/ImageModal";
 
 export default function HomePage() {
@@ -29,8 +34,12 @@ export default function HomePage() {
 		currentDirectory,
 		filesData,
 		isLoading,
+		currentSort,
 		handleSelectDirectory,
 		handleShuffle,
+		handleSortByDate,
+		handleSortByName,
+		handleSortBySize,
 	} = useHandleDirectorySelection();
 
 	const [currentIndex, setCurrentIndex] = useState(0);
@@ -55,7 +64,10 @@ export default function HomePage() {
 
 	const RenderMasonryCell = useCallback(
 		({ data, index }: RenderComponentProps<FileData>) => (
-			<div onClick={handleClickImage(index)} style={{ cursor: 'pointer' }}>
+			<div
+				onClick={handleClickImage(index)}
+				style={{ cursor: "pointer" }}
+			>
 				<DisplayLocalImage src={data.path} key={data.path} />
 			</div>
 		),
@@ -63,6 +75,10 @@ export default function HomePage() {
 	);
 
 	const [, setScroll] = useWindowScroll();
+	const [floatingMenuOpened, setFloatingMenuOpened] = useState(false)
+	useEffect(() => {
+		setFloatingMenuOpened(false)
+	}, [currentSort])
 	return (
 		<>
 			{currentDirectory.length === 0 ? (
@@ -101,13 +117,16 @@ export default function HomePage() {
 					close={close}
 					onNextClicked={handleGoNext}
 					onPreviousClicked={handleGoPrevious}
-					title={`${filesData[currentIndex].title} - (${currentIndex + 1}/${filesData.length})`}
+					title={`${filesData[currentIndex].title} - (${
+						currentIndex + 1
+					}/${filesData.length})`}
 				>
 					<DisplayLocalImage src={filesData[currentIndex].path} />
 				</ImageModal>
 			)}
 			{currentDirectory !== "" && filesData.length > 0 && (
 				<Masonry
+					itemHeightEstimate={500}
 					items={filesData}
 					render={RenderMasonryCell}
 					columnGutter={5}
@@ -116,11 +135,14 @@ export default function HomePage() {
 			)}
 			{currentDirectory !== "" && (
 				<Affix position={{ bottom: rem(20), right: rem(20) }}>
-					<Menu shadow="md" width={200}>
+					<Menu shadow="md" width={200} trigger="hover" opened={floatingMenuOpened} onChange={setFloatingMenuOpened}>
 						<Menu.Target>
-							<Button>Menu</Button>
+							<Button loading={isLoading} disabled={isLoading}>
+								Menu
+							</Button>
 						</Menu.Target>
 						<Menu.Dropdown>
+							<Menu.Label>Application</Menu.Label>
 							<Menu.Item
 								icon={<IconFolder size={14} />}
 								onClick={handleSelectDirectory}
@@ -128,17 +150,62 @@ export default function HomePage() {
 								Select Directory
 							</Menu.Item>
 							<Menu.Item
-								icon={<IconArrowsShuffle size={14} />}
-								onClick={handleShuffle}
-							>
-								Shuffle
-							</Menu.Item>
-							<Menu.Item
 								icon={<IconArrowMoveUp size={14} />}
 								onClick={() => setScroll({ y: 0 })}
 							>
 								Scroll to Top
 							</Menu.Item>
+							<Menu.Divider />
+							<Menu.Label>Sort</Menu.Label>
+							<Menu.Item
+								icon={<IconArrowsShuffle size={14} />}
+								onClick={handleShuffle}
+							>
+								Shuffle
+							</Menu.Item>
+							<Menu trigger="hover" position="left" withArrow>
+								<Menu.Target>
+									<Menu.Item icon={<IconArrowsSort size={14} />}>Sort By</Menu.Item>
+								</Menu.Target>
+								<Menu.Dropdown>
+									<Menu.Item
+										icon={<IconCalendar size={14} />}
+										onClick={() => handleSortByDate(false)}
+									>
+										<Text fw={currentSort === AVAILABLE_SORTS.DATE_INCREASING ? 500 : 400}>Sort by Date (Increasing)</Text>
+									</Menu.Item>
+									<Menu.Item
+										icon={<IconCalendar size={14} />}
+										onClick={() => handleSortByDate(true)}
+									>
+										<Text fw={currentSort === AVAILABLE_SORTS.DATE_DECREASING ? 500 : 400}>Sort by Date (Decreasing)</Text>
+									</Menu.Item>
+									<Menu.Item
+										icon={<IconSortAZ size={14} />}
+										onClick={() => handleSortByName(false)}
+									>
+										<Text fw={currentSort === AVAILABLE_SORTS.NAME_INCREASING ? 500 : 400}>Sort by Name (Increasing)</Text>
+									</Menu.Item>
+									<Menu.Item
+										icon={<IconSortZA size={14} />}
+										onClick={() => handleSortByName(true)}
+									>
+										<Text fw={currentSort === AVAILABLE_SORTS.NAME_DECREASING ? 500 : 400}>Sort by Name (Decreasing)</Text>
+									</Menu.Item>
+									<Menu.Item
+										icon={<IconSortZA size={14} />}
+										onClick={() => handleSortBySize(false)}
+									>
+										<Text fw={currentSort === AVAILABLE_SORTS.SIZE_INCREASING ? 500 : 400}>Sort by Size (Increasing)</Text>
+									</Menu.Item>
+									<Menu.Item
+										icon={<IconSortZA size={14} />}
+										onClick={() => handleSortBySize(true)}
+									>
+										<Text fw={currentSort === AVAILABLE_SORTS.SIZE_DECREASING ? 500 : 400}>Sort by Size (Decreasing)</Text>
+									</Menu.Item>
+								</Menu.Dropdown>
+							</Menu>
 						</Menu.Dropdown>
 					</Menu>
 				</Affix>
