@@ -63,14 +63,16 @@ export default function HomePage() {
 	};
 
 	const RenderMasonryCell = useCallback(
-		({ data, index }: RenderComponentProps<FileData>) => (
-			<div
-				onClick={handleClickImage(index)}
-				style={{ cursor: "pointer" }}
-			>
-				<DisplayLocalImage src={data.path} key={data.path} />
-			</div>
-		),
+		({ data, index }: RenderComponentProps<FileData>) => {
+			return (
+				<div
+					onClick={handleClickImage(index)}
+					style={{ cursor: "pointer" }}
+				>
+					<DisplayLocalImage src={data.url} />
+				</div>
+			)
+		},
 		[handleClickImage]
 	);
 
@@ -117,11 +119,10 @@ export default function HomePage() {
 					close={close}
 					onNextClicked={handleGoNext}
 					onPreviousClicked={handleGoPrevious}
-					title={`${filesData[currentIndex].title} - (${
-						currentIndex + 1
-					}/${filesData.length})`}
+					title={`${filesData[currentIndex].title} - (${currentIndex + 1
+						}/${filesData.length})`}
 				>
-					<DisplayLocalImage src={filesData[currentIndex].path} />
+					<DisplayLocalImage src={filesData[currentIndex].url} />
 				</ImageModal>
 			)}
 			{currentDirectory !== "" && filesData.length > 0 && (
@@ -131,6 +132,7 @@ export default function HomePage() {
 					render={RenderMasonryCell}
 					columnGutter={5}
 					columnCount={3}
+					overscanBy={5}
 				/>
 			)}
 			{currentDirectory !== "" && (

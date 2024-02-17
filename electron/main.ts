@@ -30,6 +30,7 @@ function createWindow() {
 			nodeIntegration: true,
 			contextIsolation: false,
 			sandbox: false,
+			webSecurity: false // https://www.electronjs.org/docs/latest/tutorial/security#6-do-not-disable-websecurity, but we are only displaying local content
 		},
 	});
 

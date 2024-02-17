@@ -2,6 +2,7 @@ import electron from "electron";
 import { useState, useEffect } from "react";
 import fs from 'fs'
 import shuffle from "../../utils/shuffle";
+import { pathToFileURL } from 'url';
 
 const ipcRenderer = electron.ipcRenderer;
 
@@ -10,6 +11,7 @@ export type FileData = {
 	lastModified: number;
 	title: string;
 	size: number;
+	url: string;
 };
 
 export const AVAILABLE_SORTS = {
@@ -53,6 +55,7 @@ export default function useHandleDirectorySelection() {
 						lastModified: fileStats.mtime.getTime(),
 						title: file,
 						size: fileStats.size,
+						url: pathToFileURL(`${directory}/${file}`).href
 					};
 				});
 
